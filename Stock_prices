@@ -1,0 +1,46 @@
+Sub Stock_prices()
+
+'Create our variables
+Dim apiURL, requestString, ticker, endpoint, reqType, params As String
+
+'Define each API elements
+apiURL = "https://api.iextrading.com/1.0/"
+endpoint = "tops/last"
+params = "symbols="
+tickers = "AAPL,MSFT,TSLA,FB,AMZN,GOOGL,TWTR,NTLA,EDIT,CRSP,QCOM,IBM,NVDA,NDAQ,SPY,DIA"
+
+
+'Create our full API request
+requestString = apiURL & endpoint & "?" & params & tickers
+Debug.Print (requestString)
+
+'creates the object
+Set request = New ServerXMLHTTP60
+
+'populates object fields
+request.Open "GET", requestString, False
+
+'actually sends the request over the wire (internet)
+request.Send
+
+'Actual response we get from iex trading due to our API Call
+Debug.Print request.responseText
+
+'-----
+'Reformat the received data from iex trading in order to use it in our spreadsheet
+prices = Split(request.responseText, "price")
+For i = 1 To UBound(prices)
+    Cells(i + 2, 3).Value = Mid(prices(i), InStr(prices(i), ":") + 1, InStr(prices(i), ",") - InStr(prices(i), ":") - 1)
+    'Debug.Print prices(i)
+Next i
+'-----
+
+'aborts the GET Connection (not mandatory but good practice)
+request.Abort
+
+
+End Sub
+
+
+
+
