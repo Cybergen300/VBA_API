@@ -1,0 +1,50 @@
+Sub Weather_data()
+
+'Variables declaration
+Dim request As MSXML2.ServerXMLHTTP60
+Dim i As Integer
+
+'Create a tab regrouping all the cities specified in column A
+Dim Tab_city(30)
+
+'Populate the tab with our values
+For i = 3 To 20
+    Tab_city(i) = Cells(i, 1).Value
+Next i
+    
+'Perform request for each city of our tab
+For i = 3 To 9
+    
+    'request definition
+    requestString = "http://api.openweathermap.org/data/2.5/weather?q=" & Tab_city(i) & "&appid=c7dfe744ef185ac0eeb6123226ba3727"
+    
+    
+    Set request = New ServerXMLHTTP60
+    request.Open "GET", requestString, False
+    
+    
+    request.Send
+    
+    '-----
+    'format the main weather info for our App
+    Forecast = Split(request.responseText, "description")
+    For n = 1 To UBound(Forecast)
+        Cells(i, 3).Value = Mid(Forecast(n), InStr(Forecast(n), ":") + 1, InStr(Forecast(n), ",") - InStr(Forecast(n), ":") - 1)
+    Next n
+    
+    
+    'format the description of the weather for our App
+    Forecast = Split(request.responseText, "weather")
+    For n = 1 To UBound(Forecast)
+        Cells(i, 2).Value = Mid(Forecast(n), InStr(Forecast(n), ",") + 9, InStr(Forecast(n), ",") - InStr(Forecast(n), ":") - 5)
+    Next n
+    '-----
+    
+
+Next i
+
+'aborts the GET Connection (not mandatory but good practice)
+request.Abort
+
+
+End Sub
